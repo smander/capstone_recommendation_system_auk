@@ -1,11 +1,5 @@
 # Capstone Project - Oleksandr Mostovyi - Recommendation System for Dating - American University Kyiv
 
-## Want to learn how to build this?
-
-Check out the [post](https://testdriven.io/blog/fastapi-docker-traefik/).
-
-## Want to use this project?
-
 ### Development
 
 Build the images and spin up the containers:

@@ -3,4 +3,5 @@ from typing import Union
 
 
 class RecommendationParams(BaseModel):
-    username: str
+    user_id: str
+    model: str

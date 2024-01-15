@@ -26,7 +26,9 @@ def user_similarity_matrix(user_ids, df, features):
 
 def predict_score(user_id, df, similarity_matrix, K=100):
     """Predict scores and recommend users."""
+    print(df)
     user_data = df[df['id'] == user_id]
+    print(user_data)
     if user_data.empty:
         print(f"User with ID {user_id} not found.")
         return

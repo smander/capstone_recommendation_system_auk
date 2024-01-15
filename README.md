@@ -1,4 +1,4 @@
-# Dockerizing FastAPI with Postgres, Uvicorn, and Traefik
+# Capstone Project - Oleksandr Mostovyi - Recommendation System for Dating - American University Kyiv
 
 ## Want to learn how to build this?
 

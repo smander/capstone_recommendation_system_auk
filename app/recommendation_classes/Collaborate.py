@@ -1,46 +1,35 @@
 import pandas as pd
-import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from scipy.spatial import distance
+from scipy.sparse import csr_matrix
 
-def load_data(file_path):
-    """Load data from a CSV file."""
-    return pd.read_csv(file_path)
 
-def create_user_item_matrix(df, user_col, item_col, rating_col):
-    """Create a user-item matrix."""
-    user_item_matrix = df.pivot(index=user_col, columns=item_col, values=rating_col)
-    user_item_matrix.fillna(0, inplace=True)
-    return user_item_matrix
+class CollaborativeRecommender:
+    def __init__(self, file_path):
+        self.data = pd.read_csv(file_path)
+        self.user_similarity_matrix = None
 
-def feature_similarity(df, user_ids, features):
-    """Calculate user similarity based on features."""
-    feature_matrix = df.set_index('id')[features]
-    feature_distances = distance.cdist(feature_matrix, feature_matrix, 'euclidean')
-    feature_similarity = 1 / (1 + feature_distances)  # Convert distances to similarity
-    return feature_similarity
+    def preprocess_data(self):
+        # Process the data to create a user-item matrix
+        # Assuming 'id' is the user ID and you have an 'item_id' column for items
+        user_item_matrix = self.data.pivot_table(index='id', columns='item_id', values='rating', fill_value=0)
+        return user_item_matrix
 
-def collaborative_filtering(user_item_matrix):
-    """Calculate user similarity using Collaborative Filtering."""
-    user_similarity = cosine_similarity(user_item_matrix)
-    return user_similarity
+    def calculate_similarity(self, user_item_matrix):
+        # Calculate user-user similarity matrix
+        user_item_matrix_sparse = csr_matrix(user_item_matrix.values)
+        self.user_similarity_matrix = cosine_similarity(user_item_matrix_sparse)
 
-def combined_similarity(df, user_ids, features, user_item_matrix):
-    """Combine feature-based and collaborative filtering similarities."""
-    feature_sim = feature_similarity(df, user_ids, features)
-    collab_sim = collaborative_filtering(user_item_matrix)
-    combined_sim = (feature_sim + collab_sim) / 2  # Simple average, can be weighted
-    return combined_sim
+    def recommend_users(self, user_id, top_n=10):
+        if self.user_similarity_matrix is None:
+            raise Exception("User similarity matrix not calculated. Please run calculate_similarity first.")
 
-# Example usage:
-file_path = 'user_data.csv'  # Update with your file path
-df = load_data(file_path)
+        # Find the user index from user_id
+        user_index = list(self.data['id']).index(user_id)
 
-user_ids = df['id'].unique()
-features = ['age', 'location', 'interests']  # Update with actual feature columns
-user_item_matrix = create_user_item_matrix(df, 'user_id', 'item_id', 'rating')
+        # Get similarity scores for the user and sort them
+        user_similarities = self.user_similarity_matrix[user_index]
+        similar_users = sorted(list(enumerate(user_similarities)), key=lambda x: x[1], reverse=True)
 
-# Calculate combined similarity matrix
-combined_similarity_matrix = combined_similarity(df, user_ids, features, user_item_matrix)
-
-# Further steps to make predictions or recommendations would go here
+        # Get top N similar users (excluding the user itself)
+        top_users = [user for user in similar_users[1:top_n + 1]]
+        return top_users

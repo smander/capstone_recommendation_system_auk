@@ -57,7 +57,3 @@ def predict_score(user_id, df, similarity_matrix, K=100):
         neighbor_data_list.append(user_data)
 
     return neighbor_data_list
-    #print('\n')
-    #avg_rating /= K
-    #print(f'The predicted average rating for {user_data["username"].values[0]} is: {avg_rating:.4f}')
-    #print(f'The actual average rating for {user_data["username"].values[0]} is: {user_data["profile_score"].values[0]}')
